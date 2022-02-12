@@ -160,7 +160,7 @@ function getClients(response) {
         .collection(collectionName)
         .find()
         .toArray();
-      return response.status(200).json(clientsScreens);
+      return response.status(200).json({ clients: clientsScreens });
     });
   } catch (exception) {
     return null;
