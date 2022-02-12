@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link href="./index.css" rel="stylesheet" />
+
+  
+
+  </head>
+
+  <body style="background-color: rgb(194, 185, 182)">
+    <div class="top">
+      <h2 class="top_title" id="top_title"></h2>
+    </div>
+    <div class="text-align:center" id="commercials"  style="margin: auto;
+    width: 60%;
+  
+    padding: 10px;" >
+      <h1 id="my_title" style="text-align:center; color: brown;"></h1>
+      <img id="myImg" src="#" style="width: 700px; height: 400px; " />
+    </div>
+  </body>
+</html>
+
+
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script type="text/javascript">
+  var socket = io();
+
+  socket.on('getScreen', function (clientJson, screenName) {
+    let i = 0;
+    let commArray = clientJson[0].commeracials;
+    let arrSize = commArray.length;
+    document.getElementById('myImg').src = commArray[0].imgUrl;
+    document.getElementById('my_title').innerHTML  = commArray[0].title;
+
+
+    let time = 0;
+    var path = '/' + screenName;
+    currentPage = location.pathname;
+
+    function func(index) {
+      return commArray[index].interval;
+    }
+
+    var timer = setInterval(() => {
+      if (currentPage !== path) {
+        clearInterval(timer);
+        return;
+      }
+
+      document.getElementById('myImg').src = commArray[i].imgUrl;
+      document.getElementById('my_title').innerHTML = commArray[i].title;
+
+      i++;
+      if (i === arrSize) i = 0;
+    }, func(i));
+  });
+</script>
