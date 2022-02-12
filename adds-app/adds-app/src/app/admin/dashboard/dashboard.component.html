@@ -1,0 +1,21 @@
+<h1 class="text-center mb-2 mt-5 text-dark">Clients</h1>
+
+<mat-table [dataSource]="dataSource" class="mb-4">
+  <ng-container matColumnDef="Name">
+    <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
+    <mat-cell *matCellDef="let client"> {{client.name}} </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="Active">
+    <mat-header-cell *matHeaderCellDef> Active </mat-header-cell>
+    <mat-cell *matCellDef="let client">
+    <mat-icon>{{ client.isActive ? 'check_circle' : 'close'}}</mat-icon>
+    </mat-cell>
+  </ng-container>
+
+  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;" (click)="toClient(row)"></mat-row>
+</mat-table>
+
+  <a routerLink="password" class="mx-auto mt-4">Change Password</a>
+

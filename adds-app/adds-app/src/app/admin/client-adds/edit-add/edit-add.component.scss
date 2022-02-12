@@ -1,0 +1,20 @@
+.form-group {
+  width: 700px;
+}
+
+.time-range {
+  display: flex;
+  flex-direction: column;
+}
+
+.days {
+  width: 400px;
+}
+
+.hour, startHour {
+  width: 100px;
+}
+
+.startHour {
+  margin-right: 5px;
+}

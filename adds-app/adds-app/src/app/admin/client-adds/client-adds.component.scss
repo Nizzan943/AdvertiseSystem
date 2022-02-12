@@ -1,0 +1,27 @@
+img {
+  width: 40px;
+  height: 40px;
+}
+
+.add-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.action-btn {
+  margin-left: 5px;
+  cursor: pointer;
+  &:hover {
+    transform: scale(1.2);
+  }
+}
+
+mat-row:hover {
+  background-color: lightgray;
+  cursor: pointer;
+}
+
+.add-com {
+  width: 200px;
+}

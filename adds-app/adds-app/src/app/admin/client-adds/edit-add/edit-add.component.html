@@ -1,0 +1,62 @@
+<section>
+  <h1 mat-dialog-title >Edit Commercial</h1>
+  <mat-dialog-content>
+    <form [formGroup]="loginForm" class="login-form">
+
+      <div class="form-group mb-3">
+        <label for="title">Title</label>
+        <input type="text" class="form-control" id="title" formControlName="title"
+        >
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="image">Image Url</label>
+        <input type="text" class="form-control" id="image" formControlName="image"
+        >
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="duration">Duration</label>
+        <input type="text" class="form-control" id="duration" formControlName="duration"
+        >
+      </div>
+
+      <hr>
+
+      <div class="time-range">
+
+        <h4 class="my-3">Time Range</h4>
+
+        <div class="form-group mb-2">
+
+          <mat-form-field class="days">
+            <mat-label>Days</mat-label>
+            <mat-select formControlName="days" multiple>
+              <mat-option *ngFor="let day of weekDays" [value]="day">{{ day }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <div class="d-flex flex-row">
+            <div class="form-group startHour hour">
+              <label for="startHour">Start Hour</label>
+              <input type="text" class="form-control" id="startHour" formControlName="startHour"
+              >
+            </div>
+
+            <div class="form-group hour">
+              <label for="endHour">End Hour</label>
+              <input type="text" class="form-control" id="endHour" formControlName="endHour"
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button  mat-button (click)="onApply()">Apply</button>
+    <button mat-button [mat-dialog-close]="false">Cancel</button>
+  </mat-dialog-actions>
+</section>
+
+
