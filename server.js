@@ -33,16 +33,19 @@ client.connect((err) => {
 
   db.collection("Admins")
     .insertOne(admin)
-    .then(console.log( `Successfully inserted admin with User Name: ${admin.userName} and Password: ${admin.password}`))
+    .then(
+      console.log(
+        `Successfully inserted admin with User Name: ${admin.userName} and Password: ${admin.password}`
+      )
+    )
     .catch((err) => console.error(`Failed to insert admin: ${err}`));
 
   db.collection(collectionName).insertMany([{ id: 0 }], function () {
-    
     if (db.listCollections({ name: collectionName }).hasNext()) {
       db.dropCollection(collectionName, function (err) {
         if (err) console.log(err);
       });
-      
+
       db.createCollection(collectionName, function (err, res) {
         if (err) throw err;
       });
@@ -58,7 +61,7 @@ client.connect((err) => {
           .find()
           .toArray(function (err, result) {
             result.forEach((doc) => {
-              screensNamesArr.push(doc.screen);
+              screensNamesArr.push(doc.id);
             });
           });
       }
@@ -100,25 +103,24 @@ app.post("/login", function (request, response) {
         .collection("Admins")
         .find({ userName: "admin" })
         .toArray();
-      
+
       const admin = admins[0];
       if (admin.password === adminResource.password) {
         return response.status(200).json({
-          isAuth: true
+          isAuth: true,
         });
-      }
-      else return response.status(404).json({
-        isAuth: false
-      });
+      } else
+        return response.status(404).json({
+          isAuth: false,
+        });
     });
-
   } catch (exception) {
     console.log(`Error while checking admin authentication`, exception);
     return response.status(400).send();
   }
 });
 
-/* --------------'Change admin password'-------------- */ // e.g http://localhost/8080/screen-1/1
+/* --------------'Change admin password'-------------- */ // e.g http://localhost/8080/password
 app.patch("/password", function (request, response) {
   let dbo;
   let password = request.body.password;
@@ -131,20 +133,26 @@ app.patch("/password", function (request, response) {
         .collection("Admins")
         .find({ userName: "admin" })
         .toArray();
-      
+
       admins[0].password = password;
       dbo
         .collection("Admins")
-        .updateOne( { userName: "admin" }, { $set: { password: adminResource.password } });
+        .updateOne(
+          { userName: "admin" },
+          { $set: { password: adminResource.password } }
+        );
     });
 
     return response.status(200).json({
-      success: true
+      success: true,
     });
   } catch (exception) {
-    console.log(`Error while trying to change password to the admin`, exception);
+    console.log(
+      `Error while trying to change password to the admin`,
+      exception
+    );
     return response.status(400).json({
-      success: false
+      success: false,
     });
   }
 });
@@ -160,7 +168,7 @@ function getClients(response) {
         .collection(collectionName)
         .find()
         .toArray();
-      return response.status(200).json({ clients: clientsScreens });
+      return response.status(200).json(clientsScreens);
     });
   } catch (exception) {
     return null;
@@ -182,12 +190,16 @@ app.get("/clients/:uid/", function (request, response) {
       return response.status(200).json(client);
     });
   } catch (exception) {
-    console.log(`Error while trying to get client: ${screenId} from DB`,exception);
+    console.log(
+      `Error while trying to get client: ${screenId} from DB`,
+      exception
+    );
     return response.status(400).send();
   }
 });
 
 /* --------------'Get client commercials'-------------- */ // e.g http://localhost/commercials/screen-1
+// should be removed
 app.get("/commercials/:uid/", function (request, response) {
   let dbo;
   let screenId = request.params.uid;
@@ -213,6 +225,7 @@ app.get("/commercials/:uid/", function (request, response) {
 });
 
 /* --------------'Get commercial'-------------- */ // e.g http://localhost/8080/screen-1/1
+// should be removed
 app.get("/clients/:uid/commercials/:cid", function (request, response) {
   let dbo;
   let screenId = request.params.uid;
@@ -245,7 +258,7 @@ app.get("/clients/:uid/commercials/:cid", function (request, response) {
 });
 
 /* --------------'Delete commercial'-------------- */ // e.g http://localhost/8080/screen-1/1
-app.delete("/:uid/:cid", function (request, response) {
+app.delete("/clients/:uid/commercials/:cid", function (request, response) {
   let dbo;
   let screenId = request.params.uid;
   let commercialId = parseInt(request.params.cid);
@@ -264,9 +277,7 @@ app.delete("/:uid/:cid", function (request, response) {
         console.log(
           `Error while trying to delete commercial from client: ${screenId}`
         );
-        return response
-          .status(404)
-          .json(`Commercial with id: ${commercialId} not found`);
+        return response.status(404).json({ success: false });
       }
       var screenClientCommercials = screenClient[0].commercials.filter(
         (x) => x.id !== commercialId
@@ -277,7 +288,9 @@ app.delete("/:uid/:cid", function (request, response) {
           { screen: screenId },
           { $set: { commercials: screenClientCommercials } }
         );
-      return response.status(204).send();
+      return response.status(200).json({
+        success: true,
+      });
     });
   } catch (exception) {
     console.log(
@@ -289,7 +302,7 @@ app.delete("/:uid/:cid", function (request, response) {
 });
 
 /* --------------'Add commercial'-------------- */ // e.g http://localhost/8080/screen-1 with body
-app.post("/:uid", function (request, response) {
+app.post("/clients/:uid/commercials/:cid", function (request, response) {
   let dbo;
   let screenId = request.params.uid;
   let commercialResource = request.body;
@@ -297,24 +310,33 @@ app.post("/:uid", function (request, response) {
   try {
     client.connect(async function (err, db) {
       dbo = db.db(databaseName);
-      var screenClient = await dbo.collection(collectionName).find({ id: screenId }).toArray();
+      var screenClient = await dbo
+        .collection(collectionName)
+        .find({ id: screenId })
+        .toArray();
       screenClient[0].commercials.push(commercialResource);
       let screenClientCommercials = screenClient[0].commercials;
       dbo
         .collection(collectionName)
-        .updateOne({ screen: screenId }, { $set: { commercials: screenClientCommercials } });
+        .updateOne(
+          { screen: screenId },
+          { $set: { commercials: screenClientCommercials } }
+        );
 
       return response.status(201).json(commercialResource);
     });
   } catch (exception) {
-    console.log(`Error while trying to add commercial to client: ${screenId}`,exception);
+    console.log(
+      `Error while trying to add commercial to client: ${screenId}`,
+      exception
+    );
 
     return response.status(500).send();
   }
 });
 
 /* --------------'Update commercial'-------------- */ // e.g http://localhost/8080/screen-1/1
-app.patch("/:uid/:cid", function (request, response) {
+app.patch("/clients/:uid/commercials/:cid", function (request, response) {
   let dbo;
   let screenId = request.params.uid;
   let commercialId = parseInt(request.params.cid);
@@ -328,9 +350,15 @@ app.patch("/:uid/:cid", function (request, response) {
         .toArray();
       screenClient[0].commercials.find((x) => {
         if (x.id === commercialId) {
-          x.title = commercialResource.title ? commercialResource.title : x.title;
-          x.image = commercialResource.image ? commercialResource.image : x.image;
-          x.interval = commercialResource.interval? commercialResource.interval: x.interval;
+          x.title = commercialResource.title
+            ? commercialResource.title
+            : x.title;
+          x.image = commercialResource.image
+            ? commercialResource.image
+            : x.image;
+          x.interval = commercialResource.interval
+            ? commercialResource.interval
+            : x.interval;
         }
       });
       let screenClientCommercials = screenClient[0].commercials;
@@ -351,7 +379,7 @@ app.patch("/:uid/:cid", function (request, response) {
   }
 });
 
-function connectToSocket(response, screenName) {
+function connectToSocket(response, clientId) {
   let dbo;
   let randID;
 
@@ -366,14 +394,14 @@ function connectToSocket(response, screenName) {
         LoginTime: datetime,
         LogoutTime: "Still connected",
       };
-      console.log(`${screenName} connected!`);
+      console.log(`${clientId} connected!`);
       dbo.collection("usersData").insertOne(obj, function (err, res) {
         if (err) console.log(err);
       });
 
       dbo
         .collection(collectionName)
-        .find({ screen: screenName })
+        .find({ id: clientId })
         .toArray(function (err, result) {
           if (err) console.log(err);
 
@@ -402,6 +430,105 @@ function myDisconnect(socket, dbo, randID) {
 function getAdmin(response) {
   response.sendFile(path.join(__dirname, "/admin.html"));
 }
+let newClients = [
+  {
+    name: "Ido",
+    id: "1",
+    commercials: [
+      {
+        id: 1,
+        title: "Add 2",
+        image:
+          "https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg",
+        duration: 3000,
+        timeRange: {
+          days: ["sunday", "tuesday"],
+          startHour: "10:21",
+          endHour: "13:40",
+        },
+      },
+      ,
+      {
+        id: 2,
+        title: "Add 2",
+        image:
+          "https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg",
+        duration: 3000,
+        timeRange: {
+          days: ["sunday", "tuesday"],
+          startHour: "10:21",
+          endHour: "13:40",
+        },
+      },
+    ],
+    isActive: true,
+  },
+  {
+    name: "Lidor",
+    id: "2",
+    commercials: [
+      {
+        id: 1,
+        title: "Add 1",
+        image:
+          "https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg",
+        duration: 3000,
+        timeRange: {
+          days: ["sunday", "tuesday"],
+          startHour: "10:21",
+          endHour: "13:40",
+        },
+      },
+      ,
+      {
+        id: 2,
+        title: "Add 1",
+        image:
+          "https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg",
+        duration: 3000,
+        timeRange: {
+          days: ["sunday", "tuesday"],
+          startHour: "10:21",
+          endHour: "13:40",
+        },
+      },
+    ],
+    isActive: true,
+  },
+  {
+    name: "Nitzan",
+    id: "3",
+    commercials: [
+      {
+        id: 1,
+        title: "Add 1",
+        image:
+          "https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg",
+        duration: 3000,
+        timeRange: {
+          days: ["sunday", "tuesday"],
+          startHour: "10:21",
+          endHour: "13:40",
+        },
+      },
+      ,
+      {
+        id: 2,
+        title: "Add 2",
+        image:
+          "https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg",
+        duration: 3000,
+        timeRange: {
+          days: ["sunday", "tuesday"],
+          startHour: "10:21",
+          endHour: "13:40",
+        },
+      },
+    ],
+    isActive: true,
+  },
+];
+
 var clients = [
   {
     id: "1",
@@ -409,13 +536,15 @@ var clients = [
       {
         id: 1,
         title: "Manchester City",
-        image: "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/800px-Manchester_City_FC_badge.svg.png",
+        image:
+          "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/800px-Manchester_City_FC_badge.svg.png",
         duration: 5000,
       },
       {
         id: 2,
         title: "Barcelona",
-        image: "https://upload.wikimedia.org/wikipedia/en/thumb/4/47/FC_Barcelona_%28crest%29.svg/1200px-FC_Barcelona_%28crest%29.svg.png",
+        image:
+          "https://upload.wikimedia.org/wikipedia/en/thumb/4/47/FC_Barcelona_%28crest%29.svg/1200px-FC_Barcelona_%28crest%29.svg.png",
         duration: 3000,
       },
     ],
@@ -426,13 +555,15 @@ var clients = [
       {
         id: 1,
         title: "NIKE",
-        image: "https://blog.klekt.com/wp-content/uploads/2021/01/Nike-Dunk-Low-Team-Green-Feature.jpg",
+        image:
+          "https://blog.klekt.com/wp-content/uploads/2021/01/Nike-Dunk-Low-Team-Green-Feature.jpg",
         duration: 5000,
       },
       {
         id: 2,
         title: "ADIDAS",
-        image: "https://assets.adidas.com/images/w_600,f_auto,q_auto/c71df619024f4cc69405acfa0142a897_9366/Forum_Exhibit_Low_Shoes_White_GZ5389_01_standard.jpg",
+        image:
+          "https://assets.adidas.com/images/w_600,f_auto,q_auto/c71df619024f4cc69405acfa0142a897_9366/Forum_Exhibit_Low_Shoes_White_GZ5389_01_standard.jpg",
         duration: 3000,
       },
     ],
@@ -443,21 +574,25 @@ var clients = [
       {
         id: 1,
         title: "AUDI",
-        image: "https://www.audi.co.il/wp-content/uploads/2020/11/DGT_110592_AudiNewSite_D2-2.jpg",
+        image:
+          "https://www.audi.co.il/wp-content/uploads/2020/11/DGT_110592_AudiNewSite_D2-2.jpg",
         duration: 3000,
       },
       {
         id: 2,
         title: "MERCEDEZ",
-        image: "https://www.mercedes-benz.co.il/wp-content/uploads/15C154_042-e1521967118774.jpg",
+        image:
+          "https://www.mercedes-benz.co.il/wp-content/uploads/15C154_042-e1521967118774.jpg",
         duration: 5000,
       },
       {
         id: 3,
         title: "BUGGATI",
-        image: "https://cdn.motor1.com/images/mgl/6MGkl/s1/bugatti-chiron-pur-sport.webp",
+        image:
+          "https://cdn.motor1.com/images/mgl/6MGkl/s1/bugatti-chiron-pur-sport.webp",
         duration: 7000,
       },
     ],
   },
 ];
+
