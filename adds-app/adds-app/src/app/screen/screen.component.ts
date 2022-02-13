@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
 import {Subscription} from "rxjs";
-import {Add, baseServerUrl} from "../shared/shared";
+import {Commercial, baseServerUrl} from "../shared/shared";
 
 @Component({
   selector: 'app-screen',
@@ -10,8 +10,8 @@ import {Add, baseServerUrl} from "../shared/shared";
   styleUrls: ['./screen.component.scss']
 })
 export class ScreenComponent implements OnInit {
-  adds: Add[];
-  activeAdd: Add;
+  adds: Commercial[];
+  activeAdd: Commercial;
   screen: string;
   isLoading = true;
 
@@ -21,7 +21,7 @@ export class ScreenComponent implements OnInit {
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id')!;
-    this.http.get<Add[]>(`${baseServerUrl}/screen/${id}`,).subscribe(adds => {
+    this.http.get<Commercial[]>(`${baseServerUrl}/screen/${id}`,).subscribe(adds => {
       this.adds = adds;
       this.isLoading = false;
       let i = 0;

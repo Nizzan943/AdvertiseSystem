@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
-import {Add, baseServerUrl, Client} from "../shared/shared";
+import {Commercial, baseServerUrl, Client} from "../shared/shared";
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -15,15 +15,15 @@ export class AdminService {
   }
 
   // getAdds(id: string){
-  //   return this.http.get<Add[]>(`${baseServerUrl}/clients/${id}/commercials`);
+  //   return this.http.get<Add[]>(`${baseServerUrl}/clients/${id}/adds`);
   // }
 
   deleteAdd(clientId: string, addId: string) {
     return this .http.delete<{ success: boolean }>(`${baseServerUrl}/clients/${clientId}/commercials/${addId}`);
   }
 
-  editAdd(add: Add, clientId: string) {
-    return this.http.put<{ add: Add }>(`${baseServerUrl}/clients/${clientId}/commercials/${add.id}`, { add },
+  editAdd(add: Commercial, clientId: string) {
+    return this.http.put<{ commercial: Commercial }>(`${baseServerUrl}/clients/${clientId}/commercials/${add.id}`, add ,
       {
         headers: new HttpHeaders({
           'Content-type': 'application/json'
@@ -31,9 +31,8 @@ export class AdminService {
       });
   }
 
-  addCommercial(commercial: Add, clientId: string){
-    return this.http.post<{ commercial: Add }>(`${baseServerUrl}/clients/${clientId}/commercials/${commercial.id}`,
-      { commercial }
+  addCommercial(add: Commercial, clientId: string) {
+    return this.http.post<{ commercial: Commercial }>(`${baseServerUrl}/clients/${clientId}/commercials/${add.id}`, add
     )
   }
 
@@ -47,6 +46,4 @@ export class AdminService {
   changePassword(password: string){
     return this.http.patch<{ success: boolean }>(`${baseServerUrl}/password`, { password });
   }
-
-
 }

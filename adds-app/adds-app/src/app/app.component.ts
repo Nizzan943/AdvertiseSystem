@@ -1,12 +1,12 @@
 import {Component, OnInit} from '@angular/core';
-// import {WebSocketService} from "./web-socket.service";
+import {ActivatedRoute, Router, UrlSegment} from "@angular/router";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent  {
+export class AppComponent {
   title = 'adds-app';
 
   // constructor(private webSocketService: WebSocketService) {

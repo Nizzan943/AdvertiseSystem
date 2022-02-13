@@ -1,5 +1,5 @@
-import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
-import {Add, Client} from "../../shared/shared";
+import {Component, OnInit} from '@angular/core';
+import {Commercial, Client} from "../../shared/shared";
 import {AdminService} from "../admin.service";
 import {ActivatedRoute} from "@angular/router";
 import {MatTableDataSource} from "@angular/material/table";
@@ -17,7 +17,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 export class ClientAddsComponent implements OnInit {
   client: Client;
   displayedColumns = ['Image', 'Title', 'Duration', 'Actions'];
-  dataSource = new MatTableDataSource<Add>();
+  dataSource = new MatTableDataSource<Commercial>();
 
   constructor(private adminService: AdminService, private route: ActivatedRoute, private dialog: MatDialog,
               private _snackBar: MatSnackBar
@@ -31,7 +31,7 @@ export class ClientAddsComponent implements OnInit {
     });
   }
 
-  onDelete(add: Add){
+  onDelete(add: Commercial){
     const dialogRef = this.dialog.open(DeleteAddComponent);
 
     dialogRef.afterClosed().subscribe(res => {
@@ -45,14 +45,15 @@ export class ClientAddsComponent implements OnInit {
     })
   }
 
-  onEdit(add: Add) {
+  onEdit(add: Commercial) {
     const dialogRef = this.dialog.open(EditAddComponent, { data: add });
 
     dialogRef.afterClosed().subscribe(res => {
       if(res){
         this.adminService.editAdd(res, this.client.id).subscribe(res => {
-          if(res.add){
-            this.client.adds[this.client.adds.findIndex(({id}) => id === add.id)] = res.add;
+          if(res.commercial){
+            const index = this.client.adds.findIndex(({id}) => id === add.id);
+            this.client.adds[index] = res.commercial;
             this.dataSource.data = this.client.adds;
             this.openSnackBar('Commercial edited successfully')
           }
@@ -67,6 +68,8 @@ export class ClientAddsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(res => {
       if(res){
         this.adminService.addCommercial(res, this.client.id).subscribe(res => {
+          console.log(res)
+
           if(res.commercial){
             this.client.adds.push(res.commercial);
             this.dataSource.data = this.client.adds;

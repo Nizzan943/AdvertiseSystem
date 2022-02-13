@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import { MatDialogRef} from "@angular/material/dialog";
-import {Add} from "../../../shared/shared";
+import {Commercial} from "../../../shared/shared";
 import { v4 as uuidv4 } from 'uuid';
 
 
@@ -32,7 +32,7 @@ export class AddComercialComponent implements OnInit {
       return ;
     }
 
-    const editedAdd: Add = {
+    const editedAdd: Commercial = {
       duration: this.loginForm.get('duration')?.value,
       id: uuidv4(),
       image: this.loginForm.get('image')?.value,

@@ -6,7 +6,7 @@ export interface TimeRange {
   endHour: string;
 }
 
-export interface Add {
+export interface Commercial {
   id: string;
   title: string,
   image: string,
@@ -17,6 +17,6 @@ export interface Add {
 export interface Client {
   name: string,
   id: string,
-  adds: Add[],
+  adds: Commercial[],
   isActive: boolean
 }
