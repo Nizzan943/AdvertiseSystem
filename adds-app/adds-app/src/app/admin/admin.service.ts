@@ -23,12 +23,8 @@ export class AdminService {
   }
 
   editAdd(add: Commercial, clientId: string) {
-    return this.http.put<{ commercial: Commercial }>(`${baseServerUrl}/clients/${clientId}/commercials/${add.id}`, add ,
-      {
-        headers: new HttpHeaders({
-          'Content-type': 'application/json'
-        })
-      });
+  
+    return this.http.put<{ commercial: Commercial }>(`${baseServerUrl}/clients/${clientId}/commercials/${add.id}`, add );
   }
 
   addCommercial(add: Commercial, clientId: string) {
@@ -43,7 +39,7 @@ export class AdminService {
     });
   }
 
-  changePassword(password: string){
-    return this.http.patch<{ success: boolean }>(`${baseServerUrl}/password`, { password });
+  changePassword(password: string ){
+    return this.http.put<{ success: boolean }>(`${baseServerUrl}/password`, { password });
   }
 }

@@ -1,12 +1,12 @@
 'use strict';
 
 const path = require('path');
+
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-
-const port = 8082;
+app.use(require('cors')());
 app.use(express.json());
 app.use(function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
@@ -14,7 +14,7 @@ app.use(function (req, res, next) {
   res.header(
     'Access-Control-Allow-Methods',
     'GET, POST, DELETE, OPTIONS, PUT',
-    'PATCH'
+    '*'
   );
   res.header(
     'Access-Control-Allow-Headers',
@@ -23,6 +23,8 @@ app.use(function (req, res, next) {
   res.header('Access-Control-Allow-Credentials', 'true');
   next();
 });
+
+const port = 8082;
 
 const mongodb = require('mongodb');
 const { status } = require('express/lib/response');
@@ -135,11 +137,12 @@ app.post('/login', function (request, response) {
   }
 });
 
-/* --------------'Change admin password'-------------- */ // e.g http://localhost/8080/password
-app.patch('/password', function (request, response) {
+/* --------------'Change admin password'-------------- */ // e.g http://localhost/8080/password //todo fix not working
+app.put('/password', function (request, response) {
   let dbo;
   let password = request.body.password;
   let admins;
+  console.log('password: ', password);
   try {
     client.connect(async function (err, db) {
       dbo = db.db(databaseName);
@@ -152,10 +155,7 @@ app.patch('/password', function (request, response) {
       admins[0].password = password;
       dbo
         .collection('Admins')
-        .updateOne(
-          { userName: 'admin' },
-          { $set: { password: adminResource.password } }
-        );
+        .updateOne({ userName: 'admin' }, { $set: { password: password } });
     });
 
     return response.status(200).json({
@@ -350,8 +350,8 @@ app.post('/clients/:uid/commercials/:cid', function (request, response) {
   }
 });
 
-/* --------------'Update commercial'-------------- */ // e.g http://localhost/8080/screen-1/1
-app.patch('/clients/:uid/commercials/:cid', function (request, response) {
+/* --------------'Update commercial'-------------- */ // e.g http://localhost/8080/screen-1/1 //todo fix mongo updateOne
+app.put('/clients/:uid/commercials/:cid', function (request, response) {
   let dbo;
   let screenId = request.params.uid;
   let commercialId = parseInt(request.params.cid);
@@ -365,13 +365,13 @@ app.patch('/clients/:uid/commercials/:cid', function (request, response) {
         .toArray();
       screenClient[0].commercials.find((x) => {
         if (x.id === commercialId) {
-          x.title = commercialResource.title
+          x.title == commercialResource.title
             ? commercialResource.title
             : x.title;
-          x.image = commercialResource.image
+          x.image == commercialResource.image
             ? commercialResource.image
             : x.image;
-          x.interval = commercialResource.interval
+          x.interval == commercialResource.interval
             ? commercialResource.interval
             : x.interval;
         }
@@ -384,7 +384,7 @@ app.patch('/clients/:uid/commercials/:cid', function (request, response) {
           { $set: { commercials: screenClientCommercials } }
         );
     });
-    return response.status(200).json(commercialResource);
+    return response.status(200).json({ commercial: commercialResource });
   } catch (exception) {
     console.log(
       `Error while trying to update commercial to client: ${screenId}`,
@@ -462,7 +462,6 @@ let newClients = [
           endHour: '13:40',
         },
       },
-      ,
       {
         id: 2,
         title: 'Add 2',

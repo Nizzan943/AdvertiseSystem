@@ -51,7 +51,7 @@ export class ClientAddsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(res => {
       if(res){
-        this.adminService.editAdd(res, this.client.id).subscribe(res => {
+        this.adminService.editAdd(res.add, this.client.id).subscribe(res => {
           if(res.commercial){
             const index = this.client.commercials.findIndex(({id}) => id === add.id);
             this.client.commercials[index] = res.commercial;
