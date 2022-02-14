@@ -26,8 +26,9 @@ export class ClientAddsComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id')!;
     this.adminService.getClient(id).subscribe(client => {
+      console.log(client)
       this.client = client;
-      this.dataSource.data = this.client.adds;
+      this.dataSource.data = this.client.commercials;
     });
   }
 
@@ -52,9 +53,9 @@ export class ClientAddsComponent implements OnInit {
       if(res){
         this.adminService.editAdd(res, this.client.id).subscribe(res => {
           if(res.commercial){
-            const index = this.client.adds.findIndex(({id}) => id === add.id);
-            this.client.adds[index] = res.commercial;
-            this.dataSource.data = this.client.adds;
+            const index = this.client.commercials.findIndex(({id}) => id === add.id);
+            this.client.commercials[index] = res.commercial;
+            this.dataSource.data = this.client.commercials;
             this.openSnackBar('Commercial edited successfully')
           }
         })
@@ -71,8 +72,8 @@ export class ClientAddsComponent implements OnInit {
           console.log(res)
 
           if(res.commercial){
-            this.client.adds.push(res.commercial);
-            this.dataSource.data = this.client.adds;
+            this.client.commercials.push(res.commercial);
+            this.dataSource.data = this.client.commercials;
             this.openSnackBar('Commercial added successfully')
           }
         })
