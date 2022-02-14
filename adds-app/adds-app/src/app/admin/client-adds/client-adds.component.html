@@ -1,5 +1,7 @@
-<div class="d-flex flex-column">
-  <h1 class="text-center mb-2 mt-5 text-dark">{{ client.name }} Commercials</h1>
+<mat-spinner *ngIf="!dataSource.data" class="container mx-auto mt-5"></mat-spinner>
+
+<div *ngIf="dataSource.data" class="d-flex flex-column">
+  <h1 class="text-center mb-2 mt-5 text-dark"> Commercials</h1>
 
   <button class="btn btn-primary add-com mx-auto my-3" (click)="onAdd()">Add Commercial</button>
 

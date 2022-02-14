@@ -1,5 +1,7 @@
-<mat-toolbar color="primary">
+<mat-toolbar color="primary" class="d-flex flex-row">
   <span>LNI Commercials</span>
-
-
+  <div *ngIf="isLoggedIn" class="actions">
+    <a *ngIf="isLoggedIn" routerLink="dashboard">Clients</a>
+    <a (click)="onLogout()" >Logout</a>
+  </div>
 </mat-toolbar>

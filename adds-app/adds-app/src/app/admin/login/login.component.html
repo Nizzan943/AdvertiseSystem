@@ -2,17 +2,24 @@
   <form [formGroup]="loginForm" class="login-form">
     <h1 class="mx-auto mb-3">Admin Login</h1>
 
-    <div class="form-group mb-3">
-      <label for="email">Email address</label>
-      <input type="email" class="form-control" id="email" placeholder="Enter email"
-             formControlName="username"
+    <mat-form-field>
+      <input
+        matInput
+        type="text"
+        placeholder="Username"
+        formControlName="username"
       >
-    </div>
-
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input type="password" class="form-control" id="password" placeholder="Password" formControlName="password">
-    </div>
+      <mat-error *ngIf="username?.errors?.['required']" >This field is required</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <input
+        matInput
+        type="password"
+        placeholder="Password"
+        formControlName="password"
+      >
+      <mat-error>This field is required</mat-error>
+    </mat-form-field>
 
     <button type="submit" class="btn btn-primary mt-2" (click)="onSubmit()">Submit</button>
   </form>

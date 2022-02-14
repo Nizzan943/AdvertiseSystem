@@ -18,6 +18,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.adminService.getClients().subscribe(clients => {
+      console.log(clients);
       this.clients = clients;
       this.dataSource.data = this.clients;
     })

@@ -1,6 +1,6 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import {Add} from "../../../shared/shared";
+import {Commercial} from "../../../shared/shared";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 
 @Component({
@@ -12,7 +12,7 @@ export class EditAddComponent implements OnInit {
   loginForm: FormGroup;
   weekDays: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-  constructor(@Inject(MAT_DIALOG_DATA) public passedData: Add,
+  constructor(@Inject(MAT_DIALOG_DATA) public passedData: Commercial,
               private dialogRef: MatDialogRef<EditAddComponent>) { }
 
   ngOnInit(): void {
@@ -31,7 +31,7 @@ export class EditAddComponent implements OnInit {
   onApply() {
     const { title, image, duration, timeRange } = this.passedData;
     const { days, startHour, endHour } = timeRange;
-    const editedAdd: Add = {
+    const editedAdd: Commercial = {
       duration: this.loginForm.get('duration')?.value || duration,
       id: this.passedData.id,
       image: this.loginForm.get('image')?.value || image,
