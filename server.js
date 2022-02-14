@@ -1,37 +1,52 @@
-"use strict";
+'use strict';
 
-const path = require("path");
-const express = require("express");
+const path = require('path');
+const express = require('express');
 const app = express();
-const server = require("http").Server(app);
-const io = require("socket.io")(server);
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
 
 const port = 8082;
 app.use(express.json());
+app.use(function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Request-Headers', '*');
+  res.header(
+    'Access-Control-Allow-Methods',
+    'GET, POST, DELETE, OPTIONS, PUT',
+    'PATCH'
+  );
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, Content-Type, X-Auth-Token, X-Requested-With,X-HTTP-Method-Override, Content-Type, Accept, Authorization'
+  );
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 
-const mongodb = require("mongodb");
-const { status } = require("express/lib/response");
-const { clearScreenDown } = require("readline");
-const { disconnect, debugPort } = require("process");
-const req = require("express/lib/request");
-const uri = "mongodb://127.0.0.1:27017";
+const mongodb = require('mongodb');
+const { status } = require('express/lib/response');
+const { clearScreenDown } = require('readline');
+const { disconnect, debugPort } = require('process');
+const req = require('express/lib/request');
+const uri = 'mongodb://127.0.0.1:27017';
 const client = new mongodb.MongoClient(uri);
-const databaseName = "Advertisements";
-const collectionName = "Clients";
-const admin = { userName: "admin", password: "admin" };
+const databaseName = 'Advertisements';
+const collectionName = 'Clients';
+const admin = { userName: 'admin', password: 'admin' };
 
 let screensNamesArr = [];
 
 client.connect((err) => {
   if (err) {
-    console.log("***Connection with mongodb failed ");
+    console.log('***Connection with mongodb failed ');
     console.log(err);
-  } else console.log("***Connection with mongodb created");
+  } else console.log('***Connection with mongodb created');
 
   const db = client.db(databaseName);
   db.dropDatabase();
 
-  db.collection("Admins")
+  db.collection('Admins')
     .insertOne(admin)
     .then(
       console.log(
@@ -52,10 +67,10 @@ client.connect((err) => {
     }
 
     db.collection(collectionName).insertMany(
-      clients,
+      newClients,
 
       (error) => {
-        if (error) return console.log("***EROR\n", error);
+        if (error) return console.log('***EROR\n', error);
 
         db.collection(collectionName)
           .find()
@@ -74,24 +89,24 @@ server.listen(port);
 console.log(`***Server started running at http://localhost: ${port}`);
 
 /* ---------------'localhost:8080'--------------- */
-app.get("/", function (req, res) {
-  res.sendFile(path.join(__dirname, "/homePage.html"));
+app.get('/', function (req, res) {
+  res.sendFile(path.join(__dirname, '/homePage.html'));
 });
 
 /* --------------'localhost:8080/screen-x'-------------- */
-app.get("/:uid", function (request, response) {
+app.get('/:uid', function (request, response) {
   let id = request.params.uid;
 
   if (screensNamesArr.includes(id)) connectToSocket(response, id);
-  else if (id === "admin") getAdmin(response);
-  else if (id === "clients") getClients(response);
-  else response.sendFile(path.join(__dirname, "/homePage.html"));
+  else if (id === 'admin') getAdmin(response);
+  else if (id === 'clients') getClients(response);
+  else response.sendFile(path.join(__dirname, '/homePage.html'));
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /* --------------'Check admin authentication'-------------- */ // e.g http://localhost/8080/login
-app.post("/login", function (request, response) {
+app.post('/login', function (request, response) {
   let dbo;
   let adminResource = request.body;
   let admins;
@@ -100,8 +115,8 @@ app.post("/login", function (request, response) {
       dbo = db.db(databaseName);
 
       admins = await dbo
-        .collection("Admins")
-        .find({ userName: "admin" })
+        .collection('Admins')
+        .find({ userName: 'admin' })
         .toArray();
 
       const admin = admins[0];
@@ -121,7 +136,7 @@ app.post("/login", function (request, response) {
 });
 
 /* --------------'Change admin password'-------------- */ // e.g http://localhost/8080/password
-app.patch("/password", function (request, response) {
+app.patch('/password', function (request, response) {
   let dbo;
   let password = request.body.password;
   let admins;
@@ -130,15 +145,15 @@ app.patch("/password", function (request, response) {
       dbo = db.db(databaseName);
 
       admins = await dbo
-        .collection("Admins")
-        .find({ userName: "admin" })
+        .collection('Admins')
+        .find({ userName: 'admin' })
         .toArray();
 
       admins[0].password = password;
       dbo
-        .collection("Admins")
+        .collection('Admins')
         .updateOne(
-          { userName: "admin" },
+          { userName: 'admin' },
           { $set: { password: adminResource.password } }
         );
     });
@@ -176,7 +191,7 @@ function getClients(response) {
 }
 
 /* --------------'Get client'-------------- */ // e.g http://localhost/8080/clients/screen-1
-app.get("/clients/:uid/", function (request, response) {
+app.get('/clients/:uid/', function (request, response) {
   let dbo;
   let clientId = request.params.uid;
   try {
@@ -200,7 +215,7 @@ app.get("/clients/:uid/", function (request, response) {
 
 /* --------------'Get client commercials'-------------- */ // e.g http://localhost/commercials/screen-1
 // should be removed
-app.get("/commercials/:uid/", function (request, response) {
+app.get('/commercials/:uid/', function (request, response) {
   let dbo;
   let screenId = request.params.uid;
 
@@ -226,7 +241,7 @@ app.get("/commercials/:uid/", function (request, response) {
 
 /* --------------'Get commercial'-------------- */ // e.g http://localhost/8080/screen-1/1
 // should be removed
-app.get("/clients/:uid/commercials/:cid", function (request, response) {
+app.get('/clients/:uid/commercials/:cid', function (request, response) {
   let dbo;
   let screenId = request.params.uid;
   let commercialId = parseInt(request.params.cid);
@@ -258,7 +273,7 @@ app.get("/clients/:uid/commercials/:cid", function (request, response) {
 });
 
 /* --------------'Delete commercial'-------------- */ // e.g http://localhost/8080/screen-1/1
-app.delete("/clients/:uid/commercials/:cid", function (request, response) {
+app.delete('/clients/:uid/commercials/:cid', function (request, response) {
   let dbo;
   let screenId = request.params.uid;
   let commercialId = parseInt(request.params.cid);
@@ -302,7 +317,7 @@ app.delete("/clients/:uid/commercials/:cid", function (request, response) {
 });
 
 /* --------------'Add commercial'-------------- */ // e.g http://localhost/8080/screen-1 with body
-app.post("/clients/:uid/commercials/:cid", function (request, response) {
+app.post('/clients/:uid/commercials/:cid', function (request, response) {
   let dbo;
   let screenId = request.params.uid;
   let commercialResource = request.body;
@@ -336,7 +351,7 @@ app.post("/clients/:uid/commercials/:cid", function (request, response) {
 });
 
 /* --------------'Update commercial'-------------- */ // e.g http://localhost/8080/screen-1/1
-app.patch("/clients/:uid/commercials/:cid", function (request, response) {
+app.patch('/clients/:uid/commercials/:cid', function (request, response) {
   let dbo;
   let screenId = request.params.uid;
   let commercialId = parseInt(request.params.cid);
@@ -383,7 +398,7 @@ function connectToSocket(response, clientId) {
   let dbo;
   let randID;
 
-  io.sockets.on("connection", function (socket) {
+  io.sockets.on('connection', function (socket) {
     client.connect(function (err, db) {
       dbo = db.db(databaseName);
       var datetime = new Date().toString().slice(0, 24);
@@ -392,10 +407,10 @@ function connectToSocket(response, clientId) {
         id: randID,
         user: screenName,
         LoginTime: datetime,
-        LogoutTime: "Still connected",
+        LogoutTime: 'Still connected',
       };
       console.log(`${clientId} connected!`);
-      dbo.collection("usersData").insertOne(obj, function (err, res) {
+      dbo.collection('usersData').insertOne(obj, function (err, res) {
         if (err) console.log(err);
       });
 
@@ -406,122 +421,122 @@ function connectToSocket(response, clientId) {
           if (err) console.log(err);
 
           socket.name = screenName;
-          socket.emit("getScreen", result, screenName);
+          socket.emit('getScreen', result, screenName);
         });
     });
     /* ----------------- disconnect -------------- */
     myDisconnect(socket, dbo, randID);
   });
-  response.sendFile(path.join(__dirname, "/screen.html"));
+  response.sendFile(path.join(__dirname, '/screen.html'));
 }
 
 function myDisconnect(socket, dbo, randID) {
-  socket.on("disconnect", function () {
+  socket.on('disconnect', function () {
     console.log(`${socket.name} disconnected!`);
 
     var datetime = new Date().toString().slice(0, 24);
 
     dbo
-      .collection("usersData")
+      .collection('usersData')
       .updateOne({ id: randID }, { $set: { LogoutTime: datetime } });
   });
 }
 
 function getAdmin(response) {
-  response.sendFile(path.join(__dirname, "/admin.html"));
+  response.sendFile(path.join(__dirname, '/admin.html'));
 }
 let newClients = [
   {
-    name: "Ido",
-    id: "1",
+    name: 'Ido',
+    id: '1',
     commercials: [
       {
         id: 1,
-        title: "Add 2",
+        title: 'Add 2',
         image:
-          "https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg",
+          'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
         duration: 3000,
         timeRange: {
-          days: ["sunday", "tuesday"],
-          startHour: "10:21",
-          endHour: "13:40",
+          days: ['sunday', 'tuesday'],
+          startHour: '10:21',
+          endHour: '13:40',
         },
       },
       ,
       {
         id: 2,
-        title: "Add 2",
+        title: 'Add 2',
         image:
-          "https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg",
+          'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
         duration: 3000,
         timeRange: {
-          days: ["sunday", "tuesday"],
-          startHour: "10:21",
-          endHour: "13:40",
+          days: ['sunday', 'tuesday'],
+          startHour: '10:21',
+          endHour: '13:40',
         },
       },
     ],
     isActive: true,
   },
   {
-    name: "Lidor",
-    id: "2",
+    name: 'Lidor',
+    id: '2',
     commercials: [
       {
         id: 1,
-        title: "Add 1",
+        title: 'Add 1',
         image:
-          "https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg",
+          'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
         duration: 3000,
         timeRange: {
-          days: ["sunday", "tuesday"],
-          startHour: "10:21",
-          endHour: "13:40",
+          days: ['sunday', 'tuesday'],
+          startHour: '10:21',
+          endHour: '13:40',
         },
       },
       ,
       {
         id: 2,
-        title: "Add 1",
+        title: 'Add 1',
         image:
-          "https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg",
+          'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
         duration: 3000,
         timeRange: {
-          days: ["sunday", "tuesday"],
-          startHour: "10:21",
-          endHour: "13:40",
+          days: ['sunday', 'tuesday'],
+          startHour: '10:21',
+          endHour: '13:40',
         },
       },
     ],
     isActive: true,
   },
   {
-    name: "Nitzan",
-    id: "3",
+    name: 'Nitzan',
+    id: '3',
     commercials: [
       {
         id: 1,
-        title: "Add 1",
+        title: 'Add 1',
         image:
-          "https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg",
+          'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
         duration: 3000,
         timeRange: {
-          days: ["sunday", "tuesday"],
-          startHour: "10:21",
-          endHour: "13:40",
+          days: ['sunday', 'tuesday'],
+          startHour: '10:21',
+          endHour: '13:40',
         },
       },
       ,
       {
         id: 2,
-        title: "Add 2",
+        title: 'Add 2',
         image:
-          "https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg",
+          'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
         duration: 3000,
         timeRange: {
-          days: ["sunday", "tuesday"],
-          startHour: "10:21",
-          endHour: "13:40",
+          days: ['sunday', 'tuesday'],
+          startHour: '10:21',
+          endHour: '13:40',
         },
       },
     ],
@@ -531,68 +546,67 @@ let newClients = [
 
 var clients = [
   {
-    id: "1",
+    id: '1',
     commercials: [
       {
         id: 1,
-        title: "Manchester City",
+        title: 'Manchester City',
         image:
-          "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/800px-Manchester_City_FC_badge.svg.png",
+          'https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/800px-Manchester_City_FC_badge.svg.png',
         duration: 5000,
       },
       {
         id: 2,
-        title: "Barcelona",
+        title: 'Barcelona',
         image:
-          "https://upload.wikimedia.org/wikipedia/en/thumb/4/47/FC_Barcelona_%28crest%29.svg/1200px-FC_Barcelona_%28crest%29.svg.png",
+          'https://upload.wikimedia.org/wikipedia/en/thumb/4/47/FC_Barcelona_%28crest%29.svg/1200px-FC_Barcelona_%28crest%29.svg.png',
         duration: 3000,
       },
     ],
   },
   {
-    id: "2",
+    id: '2',
     commercials: [
       {
         id: 1,
-        title: "NIKE",
+        title: 'NIKE',
         image:
-          "https://blog.klekt.com/wp-content/uploads/2021/01/Nike-Dunk-Low-Team-Green-Feature.jpg",
+          'https://blog.klekt.com/wp-content/uploads/2021/01/Nike-Dunk-Low-Team-Green-Feature.jpg',
         duration: 5000,
       },
       {
         id: 2,
-        title: "ADIDAS",
+        title: 'ADIDAS',
         image:
-          "https://assets.adidas.com/images/w_600,f_auto,q_auto/c71df619024f4cc69405acfa0142a897_9366/Forum_Exhibit_Low_Shoes_White_GZ5389_01_standard.jpg",
+          'https://assets.adidas.com/images/w_600,f_auto,q_auto/c71df619024f4cc69405acfa0142a897_9366/Forum_Exhibit_Low_Shoes_White_GZ5389_01_standard.jpg',
         duration: 3000,
       },
     ],
   },
   {
-    id: "3",
+    id: '3',
     commercials: [
       {
         id: 1,
-        title: "AUDI",
+        title: 'AUDI',
         image:
-          "https://www.audi.co.il/wp-content/uploads/2020/11/DGT_110592_AudiNewSite_D2-2.jpg",
+          'https://www.audi.co.il/wp-content/uploads/2020/11/DGT_110592_AudiNewSite_D2-2.jpg',
         duration: 3000,
       },
       {
         id: 2,
-        title: "MERCEDEZ",
+        title: 'MERCEDEZ',
         image:
-          "https://www.mercedes-benz.co.il/wp-content/uploads/15C154_042-e1521967118774.jpg",
+          'https://www.mercedes-benz.co.il/wp-content/uploads/15C154_042-e1521967118774.jpg',
         duration: 5000,
       },
       {
         id: 3,
-        title: "BUGGATI",
+        title: 'BUGGATI',
         image:
-          "https://cdn.motor1.com/images/mgl/6MGkl/s1/bugatti-chiron-pur-sport.webp",
+          'https://cdn.motor1.com/images/mgl/6MGkl/s1/bugatti-chiron-pur-sport.webp',
         duration: 7000,
       },
     ],
   },
 ];
-
