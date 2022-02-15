@@ -7,24 +7,31 @@ import {Router} from "@angular/router";
 @Injectable()
 export class AuthService {
 
-  private isAuthenticated = new BehaviorSubject(false);
-  isAuth = this.isAuthenticated.asObservable();
+   isAuthenticated$ = new BehaviorSubject(localStorage.getItem('isLoggedIn') || 'false');
 
   constructor(private http: HttpClient, private router: Router) {}
 
   login(username: string, password: string) {
-    return this.http.post<{ isAuth: boolean }>(`${baseServerUrl}/login`, {
+    this.http.post<{ isAuth: boolean }>(`${baseServerUrl}/login`, {
       username,
       password
-    });
+    }).subscribe(({isAuth}) => {
+      if(isAuth){
+        this.setAuth(true);
+        this.router.navigate(['/dashboard']);
+      } else {
+        this.router.navigate(['/']);
+      }
+    })
   }
 
   logout(){
-    this.isAuthenticated.next(false);
-    this.router.navigate(['/'])
+    this.setAuth(false);
+    this.router.navigate(['/login']);
   }
 
   setAuth(isAuth: boolean){
-    this.isAuthenticated.next(isAuth);
+    this.isAuthenticated$.next(`${isAuth}`);
+    localStorage.setItem('isLoggedIn', 'true');
   }
 }
