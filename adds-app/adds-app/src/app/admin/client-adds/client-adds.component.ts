@@ -39,7 +39,8 @@ export class ClientAddsComponent implements OnInit {
       if(res){
         this.adminService.deleteAdd(this.client.id, add.id).subscribe(res => {
           if(res.success) {
-            this.dataSource.data = this.dataSource.data.filter(({ id }) => id !== add.id);
+            this.client.commercials = this.client.commercials.filter(({ id }) => id !== add.id);
+            this.dataSource.data = this.client.commercials;
           }
         })
       }

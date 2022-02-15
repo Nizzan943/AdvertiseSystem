@@ -124,7 +124,7 @@ app.post('/login', function (request, response) {
         .toArray();
 
       const admin = admins[0];
-      if (admin.password === adminResource.password) {
+      if (admin.password == adminResource.password) {
         return response.status(200).json({
           isAuth: true,
         });
@@ -256,7 +256,7 @@ app.get('/clients/:uid/commercials/:cid', function (request, response) {
         .find({ id: screenId })
         .toArray();
       screenClientCommercial = screenClient[0].commercials.find(
-        (x) => x.id === commercialId
+        (x) => x.id == commercialId
       );
       if (!screenClientCommercial) {
         return response
@@ -297,12 +297,12 @@ app.delete('/clients/:uid/commercials/:cid', function (request, response) {
         return response.status(404).json({ success: false });
       }
       let screenClientCommercials = screenClient[0].commercials.filter(
-        (x) => x.id !== commercialId
+        (x) => x.id != commercialId
       );
       dbo
         .collection(collectionName)
         .updateOne(
-          { screen: screenId },
+          { id: screenId },
           { $set: { commercials: screenClientCommercials } }
         );
       return response.status(200).json({
@@ -359,7 +359,7 @@ app.post('/clients/:uid/commercials', function (request, response) {
 app.put('/clients/:uid/commercials/:cid', function (request, response) {
   let dbo;
   let screenId = request.params.uid;
-  let commercialId = parseInt(request.params.cid);
+  let commercialId = request.params.cid;
   let commercialResource = request.body;
   try {
     client.connect(async function (err, db) {
@@ -369,14 +369,14 @@ app.put('/clients/:uid/commercials/:cid', function (request, response) {
         .find({ id: screenId })
         .toArray();
       screenClient[0].commercials.find((x) => {
-        if (x.id === commercialId) {
-          x.title == commercialResource.title
+        if (x.id == commercialId) {
+          x.title = commercialResource.title
             ? commercialResource.title
             : x.title;
-          x.image == commercialResource.image
+          x.image = commercialResource.image
             ? commercialResource.image
             : x.image;
-          x.interval == commercialResource.interval
+          x.interval = commercialResource.interval
             ? commercialResource.interval
             : x.interval;
         }
