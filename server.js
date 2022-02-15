@@ -98,7 +98,7 @@ app.get('/', function (req, res) {
 });
 
 /* --------------'localhost:8080/screen-x'-------------- */
-app.get('/:uid', function (request, response) {
+app.get('/screens/:uid', function (request, response) {
   let id = request.params.uid;
 
   if (screensNamesArr.includes(id)) connectToSocket(response, id);
@@ -228,7 +228,6 @@ app.get('/commercials/:uid/', function (request, response) {
         .collection(collectionName)
         .find({ id: screenId })
         .toArray();
-      console.log(screenClients[0]);
       let screenClientCommercials = screenClients[0].commercials;
       return response.status(200).json(screenClientCommercials);
     });
@@ -410,7 +409,7 @@ function connectToSocket(response, clientId) {
       randID = Math.trunc(Math.random() * 1000000) + 1;
       let obj = {
         id: randID,
-        user: screenName,
+        user: clientId,
         LoginTime: datetime,
         LogoutTime: 'Still connected',
       };
@@ -424,9 +423,8 @@ function connectToSocket(response, clientId) {
         .find({ id: clientId })
         .toArray(function (err, result) {
           if (err) console.log(err);
-
-          socket.name = screenName;
-          socket.emit('getScreen', result, screenName);
+          socket.name = clientId;
+          socket.emit('getScreen', result, clientId);
         });
     });
     /* ----------------- disconnect -------------- */
@@ -490,7 +488,7 @@ let newClients = [
         id: 1,
         title: 'Add 1',
         image:
-          'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
+          'https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/800px-Manchester_City_FC_badge.svg.png',
         duration: 3000,
         timeRange: {
           days: ['sunday', 'tuesday'],
