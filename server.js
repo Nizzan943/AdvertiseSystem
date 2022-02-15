@@ -414,6 +414,14 @@ function connectToSocket(response, clientId) {
         LogoutTime: 'Still connected',
       };
       console.log(`${clientId} connected!`);
+
+      dbo
+      .collection(collectionName)
+      .updateOne( 
+        { id: clientId },
+        { $set: { isActive: false } }
+      );
+
       dbo.collection('usersData').insertOne(obj, function (err, res) {
         if (err) console.log(err);
       });
@@ -478,7 +486,7 @@ let newClients = [
         },
       },
     ],
-    isActive: true,
+    isActive: false,
   },
   {
     name: 'Lidor',
@@ -510,7 +518,7 @@ let newClients = [
         },
       },
     ],
-    isActive: true,
+    isActive: false,
   },
   {
     name: 'Nitzan',
@@ -542,7 +550,7 @@ let newClients = [
         },
       },
     ],
-    isActive: true,
+    isActive: false,
   },
 ];
 
