@@ -34,9 +34,9 @@
 
   socket.on('getScreen', function (clientJson, screenName) {
     let i = 0;
-    let commArray = clientJson[0].commeracials;
+    let commArray = clientJson[0].commercials;
     let arrSize = commArray.length;
-    document.getElementById('myImg').src = commArray[0].imgUrl;
+    document.getElementById('myImg').src = commArray[0].image;
     document.getElementById('my_title').innerHTML  = commArray[0].title;
 
 
@@ -54,7 +54,7 @@
         return;
       }
 
-      document.getElementById('myImg').src = commArray[i].imgUrl;
+      document.getElementById('myImg').src = commArray[i].image;
       document.getElementById('my_title').innerHTML = commArray[i].title;
 
       i++;

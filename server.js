@@ -107,6 +107,10 @@ app.get('/screens/:uid', function (request, response) {
   else response.sendFile(path.join(__dirname, '/homePage.html'));
 });
 
+app.get('/clients', function (request, response) {
+ getClients(response);
+});
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /* --------------'Check admin authentication'-------------- */ // e.g http://localhost/8080/login
@@ -402,7 +406,7 @@ function connectToSocket(response, clientId) {
   let dbo;
   let randID;
 
-  io.sockets.on('connection', function (socket) {
+  io.sockets.on('connection',(socket) => {
     client.connect(function (err, db) {
       dbo = db.db(databaseName);
       let datetime = new Date().toString().slice(0, 24);
@@ -419,7 +423,7 @@ function connectToSocket(response, clientId) {
       .collection(collectionName)
       .updateOne( 
         { id: clientId },
-        { $set: { isActive: false } }
+        { $set: { isActive: true } }
       );
 
       dbo.collection('usersData').insertOne(obj, function (err, res) {
@@ -442,10 +446,17 @@ function connectToSocket(response, clientId) {
 }
 
 function myDisconnect(socket, dbo, randID) {
-  socket.on('disconnect', function () {
-    console.log(`${socket.name} disconnected!`);
+  socket.on('disconnect', () => {
+    const clientId = socket.name;
 
-    let datetime = new Date().toString().slice(0, 24);
+    console.log(`${clientId} disconnected!`);
+
+    dbo
+        .collection(collectionName)
+        .updateOne(
+            { id: clientId },
+            { $set: { isActive: false } }
+        );
 
     dbo
       .collection('usersData')
@@ -456,14 +467,14 @@ function myDisconnect(socket, dbo, randID) {
 function getAdmin(response) {
   response.sendFile(path.join(__dirname, '/admin.html'));
 }
-let newClients = [
+const newClients = [
   {
     name: 'Ido',
     id: '1',
     commercials: [
       {
         id: 1,
-        title: 'Add 2',
+        title: 'Ido Add 1',
         image:
           'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
         duration: 3000,
@@ -475,7 +486,7 @@ let newClients = [
       },
       {
         id: 2,
-        title: 'Add 2',
+        title: 'Ido Add 2',
         image:
           'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
         duration: 3000,
@@ -494,7 +505,7 @@ let newClients = [
     commercials: [
       {
         id: 1,
-        title: 'Add 1',
+        title: 'Lidor Add 1',
         image:
           'https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/800px-Manchester_City_FC_badge.svg.png',
         duration: 3000,
@@ -507,7 +518,7 @@ let newClients = [
       ,
       {
         id: 2,
-        title: 'Add 1',
+        title: 'Lidor Add 2',
         image:
           'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
         duration: 3000,
@@ -526,7 +537,7 @@ let newClients = [
     commercials: [
       {
         id: 1,
-        title: 'Add 1',
+        title: 'Nitzan Add 1',
         image:
           'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
         duration: 3000,
@@ -539,7 +550,7 @@ let newClients = [
       ,
       {
         id: 2,
-        title: 'Add 2',
+        title: 'Nitzan Add 2',
         image:
           'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
         duration: 3000,
