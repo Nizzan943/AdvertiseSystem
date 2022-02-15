@@ -23,13 +23,11 @@ export class AdminService {
   }
 
   editAdd(add: Commercial, clientId: string) {
-  
     return this.http.put<{ commercial: Commercial }>(`${baseServerUrl}/clients/${clientId}/commercials/${add.id}`, add );
   }
 
   addCommercial(add: Commercial, clientId: string) {
-    return this.http.post<{ commercial: Commercial }>(`${baseServerUrl}/clients/${clientId}/commercials/${add.id}`, add
-    )
+    return this.http.post<{ commercial: Omit<Commercial, 'id'> }>(`${baseServerUrl}/clients/${clientId}/commercials`, add)
   }
 
   login(username: string, password: string) {

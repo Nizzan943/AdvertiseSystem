@@ -39,7 +39,8 @@ export class ClientAddsComponent implements OnInit {
       if(res){
         this.adminService.deleteAdd(this.client.id, add.id).subscribe(res => {
           if(res.success) {
-            this.dataSource.data = this.dataSource.data.filter(({ id }) => id !== add.id);
+            this.client.commercials = this.client.commercials.filter(({ id }) => id !== add.id);
+            this.dataSource.data = this.client.commercials;
           }
         })
       }
@@ -68,10 +69,9 @@ export class ClientAddsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(res => {
       if(res){
-        this.adminService.addCommercial(res, this.client.id).subscribe(res => {
-          console.log(res)
-
+        this.adminService.addCommercial(res.add, this.client.id).subscribe(res => {
           if(res.commercial){
+            // @ts-ignore
             this.client.commercials.push(res.commercial);
             this.dataSource.data = this.client.commercials;
             this.openSnackBar('Commercial added successfully')

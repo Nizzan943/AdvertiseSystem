@@ -1,6 +1,8 @@
 'use strict';
 
 const path = require('path');
+var uuid = require('uuid');
+
 
 const express = require('express');
 const app = express();
@@ -122,7 +124,7 @@ app.post('/login', function (request, response) {
         .toArray();
 
       const admin = admins[0];
-      if (admin.password === adminResource.password) {
+      if (admin.password == adminResource.password) {
         return response.status(200).json({
           isAuth: true,
         });
@@ -179,7 +181,7 @@ function getClients(response) {
   try {
     client.connect(async function (err, db) {
       dbo = db.db(databaseName);
-      var clientsScreens = await dbo
+      let clientsScreens = await dbo
         .collection(collectionName)
         .find()
         .toArray();
@@ -197,11 +199,11 @@ app.get('/clients/:uid/', function (request, response) {
   try {
     client.connect(async function (err, db) {
       dbo = db.db(databaseName);
-      var screenClients = await dbo
+      let screenClients = await dbo
         .collection(collectionName)
         .find({ id: clientId })
         .toArray();
-      var client = screenClients[0];
+      let client = screenClients[0];
       return response.status(200).json(client);
     });
   } catch (exception) {
@@ -222,7 +224,7 @@ app.get('/commercials/:uid/', function (request, response) {
   try {
     client.connect(async function (err, db) {
       dbo = db.db(databaseName);
-      var screenClients = await dbo
+      let screenClients = await dbo
         .collection(collectionName)
         .find({ id: screenId })
         .toArray();
@@ -245,16 +247,16 @@ app.get('/clients/:uid/commercials/:cid', function (request, response) {
   let dbo;
   let screenId = request.params.uid;
   let commercialId = parseInt(request.params.cid);
-  var screenClientCommercial = null;
+  let screenClientCommercial = null;
   try {
     client.connect(async function (err, db) {
       dbo = db.db(databaseName);
-      var screenClient = await dbo
+      let screenClient = await dbo
         .collection(collectionName)
         .find({ id: screenId })
         .toArray();
       screenClientCommercial = screenClient[0].commercials.find(
-        (x) => x.id === commercialId
+        (x) => x.id == commercialId
       );
       if (!screenClientCommercial) {
         return response
@@ -276,17 +278,17 @@ app.get('/clients/:uid/commercials/:cid', function (request, response) {
 app.delete('/clients/:uid/commercials/:cid', function (request, response) {
   let dbo;
   let screenId = request.params.uid;
-  let commercialId = parseInt(request.params.cid);
+  let commercialId = request.params.cid;
   let commercialToDelete = null;
   try {
     client.connect(async function (err, db) {
       dbo = db.db(databaseName);
-      var screenClient = await dbo
+      let screenClient = await dbo
         .collection(collectionName)
         .find({ id: screenId })
         .toArray();
       commercialToDelete = screenClient[0].commercials.find(
-        (x) => x.id === commercialId
+        (x) => x.id == commercialId
       );
       if (!commercialToDelete) {
         console.log(
@@ -294,13 +296,13 @@ app.delete('/clients/:uid/commercials/:cid', function (request, response) {
         );
         return response.status(404).json({ success: false });
       }
-      var screenClientCommercials = screenClient[0].commercials.filter(
-        (x) => x.id !== commercialId
+      let screenClientCommercials = screenClient[0].commercials.filter(
+        (x) => x.id != commercialId
       );
       dbo
         .collection(collectionName)
         .updateOne(
-          { screen: screenId },
+          { id: screenId },
           { $set: { commercials: screenClientCommercials } }
         );
       return response.status(200).json({
@@ -317,15 +319,18 @@ app.delete('/clients/:uid/commercials/:cid', function (request, response) {
 });
 
 /* --------------'Add commercial'-------------- */ // e.g http://localhost/8080/screen-1 with body
-app.post('/clients/:uid/commercials/:cid', function (request, response) {
+app.post('/clients/:uid/commercials', function (request, response) {
   let dbo;
   let screenId = request.params.uid;
-  let commercialResource = request.body;
+  let commercialResource = {
+    id: uuid.v4(),
+    ...request.body
+  };
 
   try {
     client.connect(async function (err, db) {
       dbo = db.db(databaseName);
-      var screenClient = await dbo
+      let screenClient = await dbo
         .collection(collectionName)
         .find({ id: screenId })
         .toArray();
@@ -334,11 +339,11 @@ app.post('/clients/:uid/commercials/:cid', function (request, response) {
       dbo
         .collection(collectionName)
         .updateOne(
-          { screen: screenId },
+          { id: screenId },
           { $set: { commercials: screenClientCommercials } }
         );
 
-      return response.status(201).json(commercialResource);
+      return response.status(201).json({commercial: commercialResource});
     });
   } catch (exception) {
     console.log(
@@ -354,7 +359,7 @@ app.post('/clients/:uid/commercials/:cid', function (request, response) {
 app.put('/clients/:uid/commercials/:cid', function (request, response) {
   let dbo;
   let screenId = request.params.uid;
-  let commercialId = parseInt(request.params.cid);
+  let commercialId = request.params.cid;
   let commercialResource = request.body;
   try {
     client.connect(async function (err, db) {
@@ -364,14 +369,14 @@ app.put('/clients/:uid/commercials/:cid', function (request, response) {
         .find({ id: screenId })
         .toArray();
       screenClient[0].commercials.find((x) => {
-        if (x.id === commercialId) {
-          x.title == commercialResource.title
+        if (x.id == commercialId) {
+          x.title = commercialResource.title
             ? commercialResource.title
             : x.title;
-          x.image == commercialResource.image
+          x.image = commercialResource.image
             ? commercialResource.image
             : x.image;
-          x.interval == commercialResource.interval
+          x.interval = commercialResource.interval
             ? commercialResource.interval
             : x.interval;
         }
@@ -401,9 +406,9 @@ function connectToSocket(response, clientId) {
   io.sockets.on('connection', function (socket) {
     client.connect(function (err, db) {
       dbo = db.db(databaseName);
-      var datetime = new Date().toString().slice(0, 24);
+      let datetime = new Date().toString().slice(0, 24);
       randID = Math.trunc(Math.random() * 1000000) + 1;
-      var obj = {
+      let obj = {
         id: randID,
         user: screenName,
         LoginTime: datetime,
@@ -434,7 +439,7 @@ function myDisconnect(socket, dbo, randID) {
   socket.on('disconnect', function () {
     console.log(`${socket.name} disconnected!`);
 
-    var datetime = new Date().toString().slice(0, 24);
+    let datetime = new Date().toString().slice(0, 24);
 
     dbo
       .collection('usersData')
@@ -543,7 +548,7 @@ let newClients = [
   },
 ];
 
-var clients = [
+let clients = [
   {
     id: '1',
     commercials: [
