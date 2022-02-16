@@ -29,10 +29,6 @@ app.use(function (req, res, next) {
 const port = 8082;
 
 const mongodb = require('mongodb');
-const { status } = require('express/lib/response');
-const { clearScreenDown } = require('readline');
-const { disconnect, debugPort } = require('process');
-const req = require('express/lib/request');
 const uri = 'mongodb://127.0.0.1:27017';
 const client = new mongodb.MongoClient(uri);
 const databaseName = 'Advertisements';
@@ -461,8 +457,8 @@ const newClients = [
         duration: 3000,
         timeRange: {
           days: ['sunday', 'tuesday'],
-          startHour: '10:21',
-          endHour: '13:40',
+          startHour: '21:00',
+          endHour: '22:40',
         },
       },
       {
@@ -484,9 +480,9 @@ const newClients = [
             'https://upload.wikimedia.org/wikipedia/en/0/00/Spider-Man_No_Way_Home_poster.jpg',
         duration: 3000,
         timeRange: {
-          days: ['wednesday'],
-          startHour: '1:21',
-          endHour: '13:40',
+          days: ['sunday','wednesday'],
+          startHour: '18:00',
+          endHour: '23:40',
         },
       },
     ],

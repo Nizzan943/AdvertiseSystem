@@ -65,7 +65,7 @@
 <script type="text/javascript">
   var socket = io();
 
-  socket.on('screen', function (client, screenName) {
+  socket.on('screen', function (client, screenName){
     function setStyle(client) {
       bodyEl.classList.add(`client${client.id}`);
       titleEl.classList.add(`title${client.id}`);
@@ -88,8 +88,8 @@
 
     setInterval(() => {
       const { image, title } = commercials[i];
-      document.getElementById('imgId').src = image;
-      document.getElementById('titleId').innerHTML = title;
+      imageEl.src = image;
+      titleEl.innerHTML = title;
 
       i++;
       if (i === commercialsSize) i = 0;
