@@ -71,27 +71,28 @@
       titleEl.classList.add(`title${client.id}`);
     }
 
-    function func(index) {
-      return commArray[index].duration;
+    function getDuration(index, commercials) {
+      return commercials[index].duration;
     }
 
     const titleEl = document.getElementById('titleId');
     const imageEl = document.getElementById('imgId');
     const bodyEl = document.querySelector('body');
     let i = 0;
-    let commArray = client.commercials;
-    let arrSize = commArray.length;
-    imageEl.src = commArray[0].image;
-    titleEl.innerHTML  = commArray[0].title;
+    let { commercials } = client;
+    let commercialsSize = commercials.length;
+    imageEl.src = commercials[0].image;
+    titleEl.innerHTML  = commercials[0].title;
 
     setStyle(client);
 
     setInterval(() => {
-      document.getElementById('imgId').src = commArray[i].image;
-      document.getElementById('titleId').innerHTML = commArray[i].title;
+      const { image, title } = commercials[i];
+      document.getElementById('imgId').src = image;
+      document.getElementById('titleId').innerHTML = title;
 
       i++;
-      if (i === arrSize) i = 0;
-    }, func(i));
+      if (i === commercialsSize) i = 0;
+    }, getDuration(i, commercials));
   });
 </script>
