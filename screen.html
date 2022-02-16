@@ -5,57 +5,90 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link href="./index.css" rel="stylesheet" />
+    <style>
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
 
-  
+      #imgId {
+        width: 600px;
+        height: 600px;
+      }
+
+      #titleId {
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .client1 {
+        background-color: lightblue;
+      }
+
+      .client2 {
+        background-color: lightcoral;
+      }
+
+      .client3 {
+        background-color: lightgoldenrodyellow;
+      }
+
+      .title1 {
+        color: black;
+      }
+
+      .title2 {
+        color: #fff;
+      }
+
+      .title3 {
+        color: brown;
+      }
+    </style>
 
   </head>
 
-  <body style="background-color: rgb(194, 185, 182)">
+  <body class="container">
     <div class="top">
       <h2 class="top_title" id="top_title"></h2>
     </div>
-    <div class="text-align:center" id="commercials"  style="margin: auto;
-    width: 60%;
-  
-    padding: 10px;" >
-      <h1 id="my_title" style="text-align:center; color: brown;"></h1>
-      <img id="myImg" src="#" style="width: 700px; height: 400px; " />
+    <div class="text-align:center" id="commercials">
+      <h1 id="titleId"></h1>
+      <img id="imgId" src="#"/>
     </div>
   </body>
 </html>
-
-
 
 <script src="/socket.io/socket.io.js"></script>
 
 <script type="text/javascript">
   var socket = io();
 
-  socket.on('getScreen', function (clientJson, screenName) {
-    let i = 0;
-    let commArray = clientJson[0].commercials;
-    let arrSize = commArray.length;
-    document.getElementById('myImg').src = commArray[0].image;
-    document.getElementById('my_title').innerHTML  = commArray[0].title;
-
-
-    let time = 0;
-    var path = '/' + screenName;
-    currentPage = location.pathname;
-
-    function func(index) {
-      return commArray[index].interval;
+  socket.on('screen', function (client, screenName) {
+    function setStyle(client) {
+      bodyEl.classList.add(`client${client.id}`);
+      titleEl.classList.add(`title${client.id}`);
     }
 
-    var timer = setInterval(() => {
-      if (currentPage !== path) {
-        clearInterval(timer);
-        return;
-      }
+    function func(index) {
+      return commArray[index].duration;
+    }
 
-      document.getElementById('myImg').src = commArray[i].image;
-      document.getElementById('my_title').innerHTML = commArray[i].title;
+    const titleEl = document.getElementById('titleId');
+    const imageEl = document.getElementById('imgId');
+    const bodyEl = document.querySelector('body');
+    let i = 0;
+    let commArray = client.commercials;
+    let arrSize = commArray.length;
+    imageEl.src = commArray[0].image;
+    titleEl.innerHTML  = commArray[0].title;
+
+    setStyle(client);
+
+    setInterval(() => {
+      document.getElementById('imgId').src = commArray[i].image;
+      document.getElementById('titleId').innerHTML = commArray[i].title;
 
       i++;
       if (i === arrSize) i = 0;

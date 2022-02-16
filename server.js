@@ -92,11 +92,6 @@ client.connect((err) => {
 server.listen(port);
 console.log(`***Server started running at http://localhost: ${port}`);
 
-/* ---------------'localhost:8080'--------------- */
-app.get('/', function (req, res) {
-  res.sendFile(path.join(__dirname, '/homePage.html'));
-});
-
 /* --------------'localhost:8080/screen-x'-------------- */
 app.get('/screens/:uid', function (request, response) {
   let id = request.params.uid;
@@ -403,20 +398,13 @@ app.put('/clients/:uid/commercials/:cid', function (request, response) {
 });
 
 function connectToSocket(response, clientId) {
+  console.log('client: ', clientId)
   let dbo;
-  let randID;
 
   io.sockets.on('connection',(socket) => {
     client.connect(function (err, db) {
       dbo = db.db(databaseName);
-      let datetime = new Date().toString().slice(0, 24);
-      randID = Math.trunc(Math.random() * 1000000) + 1;
-      let obj = {
-        id: randID,
-        user: clientId,
-        LoginTime: datetime,
-        LogoutTime: 'Still connected',
-      };
+
       console.log(`${clientId} connected!`);
 
       dbo
@@ -429,19 +417,19 @@ function connectToSocket(response, clientId) {
       dbo
         .collection(collectionName)
         .find({ id: clientId })
-        .toArray(function (err, result) {
+        .toArray( (err, result) => {
           if (err) console.log(err);
           socket.name = clientId;
-          socket.emit('getScreen', result, clientId);
+          socket.emit('screen', result[0], clientId);
         });
     });
     /* ----------------- disconnect -------------- */
-    myDisconnect(socket, dbo, randID);
+    myDisconnect(socket, dbo);
   });
   response.sendFile(path.join(__dirname, '/screen.html'));
 }
 
-function myDisconnect(socket, dbo, randID) {
+function myDisconnect(socket, dbo) {
   socket.on('disconnect', () => {
     const clientId = socket.name;
 
@@ -459,16 +447,17 @@ function myDisconnect(socket, dbo, randID) {
 function getAdmin(response) {
   response.sendFile(path.join(__dirname, '/admin.html'));
 }
+
 const newClients = [
   {
-    name: 'Ido',
+    name: 'Cinema-City',
     id: '1',
     commercials: [
       {
         id: 1,
-        title: 'Ido Add 1',
+        title: 'Uncharted Movie',
         image:
-          'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
+            'https://upload.wikimedia.org/wikipedia/he/thumb/d/d3/Uncharted_Poster.jpg/800px-Uncharted_Poster.jpg',
         duration: 3000,
         timeRange: {
           days: ['sunday', 'tuesday'],
@@ -478,148 +467,115 @@ const newClients = [
       },
       {
         id: 2,
-        title: 'Ido Add 2',
+        title: 'Moonfall',
         image:
-          'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
+            'https://upload.wikimedia.org/wikipedia/en/1/12/Moonfall2022Poster.jpg',
         duration: 3000,
         timeRange: {
-          days: ['sunday', 'tuesday'],
+          days: ['monday', 'friday'],
           startHour: '10:21',
           endHour: '13:40',
         },
-      },
-    ],
-    isActive: false,
-  },
-  {
-    name: 'Lidor',
-    id: '2',
-    commercials: [
-      {
-        id: 1,
-        title: 'Lidor Add 1',
-        image:
-          'https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/800px-Manchester_City_FC_badge.svg.png',
-        duration: 3000,
-        timeRange: {
-          days: ['sunday', 'tuesday'],
-          startHour: '10:21',
-          endHour: '13:40',
-        },
-      },
-      ,
-      {
-        id: 2,
-        title: 'Lidor Add 2',
-        image:
-          'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
-        duration: 3000,
-        timeRange: {
-          days: ['sunday', 'tuesday'],
-          startHour: '10:21',
-          endHour: '13:40',
-        },
-      },
-    ],
-    isActive: false,
-  },
-  {
-    name: 'Nitzan',
-    id: '3',
-    commercials: [
-      {
-        id: 1,
-        title: 'Nitzan Add 1',
-        image:
-          'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
-        duration: 3000,
-        timeRange: {
-          days: ['sunday', 'tuesday'],
-          startHour: '10:21',
-          endHour: '13:40',
-        },
-      },
-      ,
-      {
-        id: 2,
-        title: 'Nitzan Add 2',
-        image:
-          'https://www.hrus.co.il/wp-content/uploads/shutterstock_319097270.jpg',
-        duration: 3000,
-        timeRange: {
-          days: ['sunday', 'tuesday'],
-          startHour: '10:21',
-          endHour: '13:40',
-        },
-      },
-    ],
-    isActive: false,
-  },
-];
-
-let clients = [
-  {
-    id: '1',
-    commercials: [
-      {
-        id: 1,
-        title: 'Manchester City',
-        image:
-          'https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/800px-Manchester_City_FC_badge.svg.png',
-        duration: 5000,
-      },
-      {
-        id: 2,
-        title: 'Barcelona',
-        image:
-          'https://upload.wikimedia.org/wikipedia/en/thumb/4/47/FC_Barcelona_%28crest%29.svg/1200px-FC_Barcelona_%28crest%29.svg.png',
-        duration: 3000,
-      },
-    ],
-  },
-  {
-    id: '2',
-    commercials: [
-      {
-        id: 1,
-        title: 'NIKE',
-        image:
-          'https://blog.klekt.com/wp-content/uploads/2021/01/Nike-Dunk-Low-Team-Green-Feature.jpg',
-        duration: 5000,
-      },
-      {
-        id: 2,
-        title: 'ADIDAS',
-        image:
-          'https://assets.adidas.com/images/w_600,f_auto,q_auto/c71df619024f4cc69405acfa0142a897_9366/Forum_Exhibit_Low_Shoes_White_GZ5389_01_standard.jpg',
-        duration: 3000,
-      },
-    ],
-  },
-  {
-    id: '3',
-    commercials: [
-      {
-        id: 1,
-        title: 'AUDI',
-        image:
-          'https://www.audi.co.il/wp-content/uploads/2020/11/DGT_110592_AudiNewSite_D2-2.jpg',
-        duration: 3000,
-      },
-      {
-        id: 2,
-        title: 'MERCEDEZ',
-        image:
-          'https://www.mercedes-benz.co.il/wp-content/uploads/15C154_042-e1521967118774.jpg',
-        duration: 5000,
       },
       {
         id: 3,
-        title: 'BUGGATI',
+        title: 'Spiderman: No Way Home',
         image:
-          'https://cdn.motor1.com/images/mgl/6MGkl/s1/bugatti-chiron-pur-sport.webp',
-        duration: 7000,
+            'https://upload.wikimedia.org/wikipedia/en/0/00/Spider-Man_No_Way_Home_poster.jpg',
+        duration: 3000,
+        timeRange: {
+          days: ['wednesday'],
+          startHour: '1:21',
+          endHour: '13:40',
+        },
       },
     ],
+    isActive: false,
+  },
+  {
+    name: 'Super-Pharm',
+    id: '2',
+    commercials: [
+      {
+        id: 1,
+        title: 'Coco Chanel',
+        image:
+            'https://images.unsplash.com/photo-1594035910387-fea47794261f?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80',
+        duration: 3000,
+        timeRange: {
+          days: ['sunday', 'tuesday'],
+          startHour: '10:21',
+          endHour: '13:40',
+        },
+      },
+      {
+        id: 2,
+        title: 'Versace Eros',
+        image:
+            'https://images.unsplash.com/photo-1587017539504-67cfbddac569?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80',
+        duration: 3000,
+        timeRange: {
+          days: ['sunday', 'tuesday'],
+          startHour: '10:21',
+          endHour: '13:40'
+        },
+      },
+      {
+        id: 3,
+        title: 'Yves Saint Laurent',
+        image:
+            'https://images.unsplash.com/photo-1588482587611-692b19ee797b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80',
+        duration: 3000,
+        timeRange: {
+          days: ['sunday', 'tuesday'],
+          startHour: '10:21',
+          endHour: '13:40',
+        },
+      },
+    ],
+    isActive: false,
+  },
+  {
+    name: 'Car-dealership',
+    id: '3',
+    commercials: [
+      {
+        id: 1,
+        title: 'Mustang GT500',
+        image:
+            'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
+        duration: 3000,
+        timeRange: {
+          days: ['sunday', 'tuesday'],
+          startHour: '10:21',
+          endHour: '13:40',
+        },
+      },
+      {
+        id: 2,
+        title: 'Porchse Panamera Turbo',
+        image:
+            'https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
+        duration: 3000,
+        timeRange: {
+          days: ['sunday', 'tuesday'],
+          startHour: '10:21',
+          endHour: '13:40',
+        },
+      },
+      {
+        id: 3,
+        title: 'Blue Chevy Camero RS',
+        image:
+            'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
+        duration: 3000,
+        timeRange: {
+          days: ['sunday', 'tuesday'],
+          startHour: '10:21',
+          endHour: '13:40',
+        },
+      },
+    ],
+    isActive: false,
   },
 ];
