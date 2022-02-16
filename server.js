@@ -426,10 +426,6 @@ function connectToSocket(response, clientId) {
         { $set: { isActive: true } }
       );
 
-      dbo.collection('usersData').insertOne(obj, function (err, res) {
-        if (err) console.log(err);
-      });
-
       dbo
         .collection(collectionName)
         .find({ id: clientId })
@@ -457,10 +453,6 @@ function myDisconnect(socket, dbo, randID) {
             { id: clientId },
             { $set: { isActive: false } }
         );
-
-    dbo
-      .collection('usersData')
-      .updateOne({ id: randID }, { $set: { LogoutTime: datetime } });
   });
 }
 
